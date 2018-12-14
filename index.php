@@ -111,6 +111,36 @@ $map->get('todo.delete', '/delete/{id}', function ($request) {
     return $response;
 });
 
+$map->get('api.tasks.get', '/api/v1/tasks', function ($request) {
+    $tasks = Task::all();
+    return new \Zend\Diactoros\Response\JsonResponse($tasks);
+});
+
+$map->post('api.tasks.post', '/api/v1/tasks', function ($request) {
+    $data = json_decode($request->getBody()->getContents(), true);
+    $task = new Task();
+    $task->description = $data["description"];
+    $task->save();
+
+    return new \Zend\Diactoros\Response\EmptyResponse(201);
+});
+$map->patch('api.tasks.patch', '/api/v1/tasks/{id}', function ($request) {
+    $data = json_decode($request->getBody()->getContents(), true);
+    $id = $request->getAttribute('id');
+    $task = Task::find($id);
+    $task->done = $data['done'];
+    $task->save();
+
+    return new \Zend\Diactoros\Response\JsonResponse($task);
+});
+$map->delete('api.tasks.delete', '/api/v1/tasks/{id}', function ($request) {
+    $id = $request->getAttribute('id');
+    $task = Task::find($id);
+    $task->delete();
+
+    return new \Zend\Diactoros\Response\EmptyResponse(204);
+});
+
 $relay = new Relay([
     new Middlewares\AuraRouter($router),
     new Middlewares\RequestHandler()
