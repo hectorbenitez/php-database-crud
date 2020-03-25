@@ -47,28 +47,6 @@ $twig = new \Twig_Environment($loader, array(
 $router = new Aura\Router\RouterContainer();
 $map = $router->getMap();
 $map->get('todo.list', '/', function ($request) use ($twig) {
-    // $tasks = [
-    //     [
-    //         'id' => 1,
-    //         'description' => 'Aprender inglés',
-    //         'done' => false
-    //     ],
-    //     [
-    //         'id' => 1,
-    //         'description' => 'Hacer la tarea',
-    //         'done' => true
-    //     ],
-    //     [
-    //         'id' => 1,
-    //         'description' => 'Pasear al perro',
-    //         'done' => false
-    //     ],
-    //     [
-    //         'id' => 1,
-    //         'description' => 'Ver el curso de introducción a PHP',
-    //         'done' => false
-    //     ]
-    // ];
     $tasks = Task::all();
     $response = new Zend\Diactoros\Response\HtmlResponse($twig->render('template.twig', [
         'tasks' => $tasks
@@ -118,6 +96,19 @@ $map->get('todo.delete', '/delete/{id}', function ($request) {
     $response = new Zend\Diactoros\Response\RedirectResponse('/');
     return $response;
 });
+
+$map->get('get.tasks', '/tasks', function () {
+    $tasks = Task::all();
+
+    $response = new \Zend\Diactoros\Response\JsonResponse($tasks);
+    return $response;
+});
+
+$map->post('post.tasks', '/tasks', function ($request) {
+    $data = $request->getBody()->getContents();
+    return var_dump($data);
+});
+
 
 $relay = new Relay([
     new Middlewares\AuraRouter($router),
